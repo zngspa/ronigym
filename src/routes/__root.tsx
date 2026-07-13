@@ -81,9 +81,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "מאמן — מעקב חניכים וקבוצות" },
       { name: "description", content: "מערכת לניהול קבוצות כושר, מעקב נוכחות, תשלומים וגליון אישי לכל חניך" },
       { property: "og:title", content: "מאמן — מעקב חניכים וקבוצות" },
-      { property: "og:description", content: "ניהול קבוצות כושר, נוכחות, תשלומים וכרטיסי חניך" },
+      { property: "og:description", content: "מערכת לניהול קבוצות כושר, מעקב נוכחות, תשלומים וגליון אישי לכל חניך" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "מאמן — מעקב חניכים וקבוצות" },
+      { name: "twitter:description", content: "מערכת לניהול קבוצות כושר, מעקב נוכחות, תשלומים וגליון אישי לכל חניך" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8c3ae094-27de-4343-9785-61d5bab2257b/id-preview-bda0c6a3--295912c3-d0b4-40a8-b32e-94abffc094e0.lovable.app-1783960750397.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8c3ae094-27de-4343-9785-61d5bab2257b/id-preview-bda0c6a3--295912c3-d0b4-40a8-b32e-94abffc094e0.lovable.app-1783960750397.png" },
     ],
     links: [
       {
