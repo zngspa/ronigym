@@ -13,6 +13,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
+import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
+import { Route as AuthenticatedLessonsRouteImport } from './routes/_authenticated/lessons'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedStudentsStudentIdRouteImport } from './routes/_authenticated/students.$studentId'
@@ -34,6 +36,16 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   id: '/students',
   path: '/students',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLessonsRoute = AuthenticatedLessonsRouteImport.update({
+  id: '/lessons',
+  path: '/lessons',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
@@ -58,6 +70,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/lessons': typeof AuthenticatedLessonsRoute
+  '/payments': typeof AuthenticatedPaymentsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
 }
@@ -66,6 +80,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/lessons': typeof AuthenticatedLessonsRoute
+  '/payments': typeof AuthenticatedPaymentsRoute
   '/students': typeof AuthenticatedStudentsRouteWithChildren
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
 }
@@ -76,6 +92,8 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
+  '/_authenticated/lessons': typeof AuthenticatedLessonsRoute
+  '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRouteWithChildren
   '/_authenticated/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
 }
@@ -86,6 +104,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/groups'
+    | '/lessons'
+    | '/payments'
     | '/students'
     | '/students/$studentId'
   fileRoutesByTo: FileRoutesByTo
@@ -94,6 +114,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/dashboard'
     | '/groups'
+    | '/lessons'
+    | '/payments'
     | '/students'
     | '/students/$studentId'
   id:
@@ -103,6 +125,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/dashboard'
     | '/_authenticated/groups'
+    | '/_authenticated/lessons'
+    | '/_authenticated/payments'
     | '/_authenticated/students'
     | '/_authenticated/students/$studentId'
   fileRoutesById: FileRoutesById
@@ -141,6 +165,20 @@ declare module '@tanstack/react-router' {
       path: '/students'
       fullPath: '/students'
       preLoaderRoute: typeof AuthenticatedStudentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/payments': {
+      id: '/_authenticated/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof AuthenticatedPaymentsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/lessons': {
+      id: '/_authenticated/lessons'
+      path: '/lessons'
+      fullPath: '/lessons'
+      preLoaderRoute: typeof AuthenticatedLessonsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/groups': {
@@ -183,12 +221,16 @@ const AuthenticatedStudentsRouteWithChildren =
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
+  AuthenticatedLessonsRoute: typeof AuthenticatedLessonsRoute
+  AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
+  AuthenticatedLessonsRoute: AuthenticatedLessonsRoute,
+  AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRouteWithChildren,
 }
 
