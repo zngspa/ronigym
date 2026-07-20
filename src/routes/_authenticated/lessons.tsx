@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, ClipboardCheck, Trash2, Clock } from "lucide-react";
+import { Plus, ClipboardCheck, Trash2, Clock, CalendarRange } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/lessons")({
@@ -29,6 +29,8 @@ function LessonsPage() {
     notes: "",
   });
   const [attendanceLesson, setAttendanceLesson] = useState<any>(null);
+  const [reportRange, setReportRange] = useState<"month" | "year" | null>(null);
+  const [reportLesson, setReportLesson] = useState<any>(null);
 
   const { data: groups = [] } = useQuery({
     queryKey: ["groups"],
@@ -73,7 +75,15 @@ function LessonsPage() {
           <h1 className="text-2xl md:text-3xl font-bold">שיעורים ונוכחות</h1>
           <p className="text-sm text-muted-foreground mt-1">רישום שיעורים ונוכחות חניכים</p>
         </div>
-        <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 ml-1" /> שיעור חדש</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setReportRange("month")}>
+            <CalendarRange className="h-4 w-4 ml-1" /> חודשי
+          </Button>
+          <Button variant="outline" onClick={() => setReportRange("year")}>
+            <CalendarRange className="h-4 w-4 ml-1" /> שנתי
+          </Button>
+          <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 ml-1" /> שיעור חדש</Button>
+        </div>
       </div>
 
       {lessons.length === 0 ? (
@@ -143,6 +153,18 @@ function LessonsPage() {
 
       {attendanceLesson && (
         <AttendanceDialog lesson={attendanceLesson} onClose={() => setAttendanceLesson(null)} />
+      )}
+
+      {reportRange && (
+        <AttendanceReportDialog
+          range={reportRange}
+          onClose={() => setReportRange(null)}
+          onOpenLesson={(l) => setReportLesson(l)}
+        />
+      )}
+
+      {reportLesson && (
+        <AttendanceDetailsDialog lesson={reportLesson} onClose={() => setReportLesson(null)} />
       )}
     </div>
   );
@@ -229,6 +251,197 @@ function AttendanceDialog({ lesson, onClose }: { lesson: any; onClose: () => voi
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>ביטול</Button>
           <Button onClick={save}>שמור נוכחות</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AttendanceReportDialog({
+  range,
+  onClose,
+  onOpenLesson,
+}: {
+  range: "month" | "year";
+  onClose: () => void;
+  onOpenLesson: (lesson: any) => void;
+}) {
+  const now = new Date();
+  const [cursor, setCursor] = useState(
+    range === "month"
+      ? { year: now.getFullYear(), month: now.getMonth() }
+      : { year: now.getFullYear(), month: 0 }
+  );
+
+  const { start, end, label } = (() => {
+    if (range === "month") {
+      const s = new Date(cursor.year, cursor.month, 1);
+      const e = new Date(cursor.year, cursor.month + 1, 0);
+      return {
+        start: s.toISOString().slice(0, 10),
+        end: e.toISOString().slice(0, 10),
+        label: s.toLocaleDateString("he-IL", { month: "long", year: "numeric" }),
+      };
+    }
+    return {
+      start: `${cursor.year}-01-01`,
+      end: `${cursor.year}-12-31`,
+      label: String(cursor.year),
+    };
+  })();
+
+  const { data: lessons = [] } = useQuery({
+    queryKey: ["attendance-report", range, start, end],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("lessons")
+        .select("*, groups(id, name, color), attendance(id, status)")
+        .gte("lesson_date", start)
+        .lte("lesson_date", end)
+        .order("lesson_date", { ascending: false })
+        .order("start_time", { ascending: false });
+      return data ?? [];
+    },
+  });
+
+  const shift = (dir: -1 | 1) => {
+    if (range === "month") {
+      const m = cursor.month + dir;
+      if (m < 0) setCursor({ year: cursor.year - 1, month: 11 });
+      else if (m > 11) setCursor({ year: cursor.year + 1, month: 0 });
+      else setCursor({ ...cursor, month: m });
+    } else {
+      setCursor({ ...cursor, year: cursor.year + dir });
+    }
+  };
+
+  const totalPresent = lessons.reduce(
+    (sum: number, l: any) => sum + (l.attendance?.filter((a: any) => a.status === "present").length ?? 0),
+    0,
+  );
+
+  return (
+    <Dialog open onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>דוח נוכחות {range === "month" ? "חודשי" : "שנתי"}</DialogTitle>
+        </DialogHeader>
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <Button size="sm" variant="outline" onClick={() => shift(-1)}>הקודם</Button>
+          <div className="font-semibold">{label}</div>
+          <Button size="sm" variant="outline" onClick={() => shift(1)}>הבא</Button>
+        </div>
+        <div className="text-xs text-muted-foreground mb-2">
+          סה״כ שיעורים: {lessons.length} · סה״כ נוכחים: {totalPresent}
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          {lessons.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">אין שיעורים בתקופה זו</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-background">
+                <tr className="text-right border-b">
+                  <th className="p-2 font-medium">תאריך</th>
+                  <th className="p-2 font-medium">קבוצה</th>
+                  <th className="p-2 font-medium">שעה</th>
+                  <th className="p-2 font-medium text-center">נוכחים</th>
+                </tr>
+              </thead>
+              <tbody>
+                {lessons.map((l: any) => {
+                  const present = l.attendance?.filter((a: any) => a.status === "present").length ?? 0;
+                  const total = l.attendance?.length ?? 0;
+                  return (
+                    <tr
+                      key={l.id}
+                      onClick={() => onOpenLesson(l)}
+                      className="border-b cursor-pointer hover:bg-muted/50 transition"
+                    >
+                      <td className="p-2">{new Date(l.lesson_date).toLocaleDateString("he-IL")}</td>
+                      <td className="p-2">
+                        <span className="inline-flex items-center gap-2">
+                          <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: l.groups?.color }} />
+                          {l.groups?.name}
+                        </span>
+                      </td>
+                      <td className="p-2">{l.start_time?.slice(0, 5)}</td>
+                      <td className="p-2 text-center">
+                        <span className="inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-medium">
+                          {present}{total > 0 ? `/${total}` : ""}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>סגור</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AttendanceDetailsDialog({ lesson, onClose }: { lesson: any; onClose: () => void }) {
+  const { data: rows = [] } = useQuery({
+    queryKey: ["attendance-details", lesson.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("attendance")
+        .select("id, status, notes, students(id, full_name)")
+        .eq("lesson_id", lesson.id);
+      return data ?? [];
+    },
+  });
+
+  const present = rows.filter((r: any) => r.status === "present");
+  const absent = rows.filter((r: any) => r.status === "absent");
+
+  return (
+    <Dialog open onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-lg max-h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>
+            {lesson.groups?.name} · {new Date(lesson.lesson_date).toLocaleDateString("he-IL")}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 overflow-y-auto space-y-4">
+          <div>
+            <div className="text-sm font-semibold text-emerald-700 mb-2">נוכחים ({present.length})</div>
+            {present.length === 0 ? (
+              <p className="text-xs text-muted-foreground">—</p>
+            ) : (
+              <ul className="space-y-1">
+                {present.map((r: any) => (
+                  <li key={r.id} className="text-sm p-2 rounded bg-emerald-50">
+                    {r.students?.full_name}
+                    {r.notes && <span className="text-xs text-muted-foreground mr-2">· {r.notes}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div>
+            <div className="text-sm font-semibold text-red-700 mb-2">נעדרים ({absent.length})</div>
+            {absent.length === 0 ? (
+              <p className="text-xs text-muted-foreground">—</p>
+            ) : (
+              <ul className="space-y-1">
+                {absent.map((r: any) => (
+                  <li key={r.id} className="text-sm p-2 rounded bg-red-50">
+                    {r.students?.full_name}
+                    {r.notes && <span className="text-xs text-muted-foreground mr-2">· {r.notes}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>סגור</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
