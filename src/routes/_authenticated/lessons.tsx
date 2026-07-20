@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, ClipboardCheck, Trash2, Clock } from "lucide-react";
+import { Plus, ClipboardCheck, Trash2, Clock, CalendarRange } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/lessons")({
@@ -29,6 +29,8 @@ function LessonsPage() {
     notes: "",
   });
   const [attendanceLesson, setAttendanceLesson] = useState<any>(null);
+  const [reportRange, setReportRange] = useState<"month" | "year" | null>(null);
+  const [reportLesson, setReportLesson] = useState<any>(null);
 
   const { data: groups = [] } = useQuery({
     queryKey: ["groups"],
@@ -73,7 +75,15 @@ function LessonsPage() {
           <h1 className="text-2xl md:text-3xl font-bold">שיעורים ונוכחות</h1>
           <p className="text-sm text-muted-foreground mt-1">רישום שיעורים ונוכחות חניכים</p>
         </div>
-        <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 ml-1" /> שיעור חדש</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setReportRange("month")}>
+            <CalendarRange className="h-4 w-4 ml-1" /> חודשי
+          </Button>
+          <Button variant="outline" onClick={() => setReportRange("year")}>
+            <CalendarRange className="h-4 w-4 ml-1" /> שנתי
+          </Button>
+          <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 ml-1" /> שיעור חדש</Button>
+        </div>
       </div>
 
       {lessons.length === 0 ? (
@@ -143,6 +153,18 @@ function LessonsPage() {
 
       {attendanceLesson && (
         <AttendanceDialog lesson={attendanceLesson} onClose={() => setAttendanceLesson(null)} />
+      )}
+
+      {reportRange && (
+        <AttendanceReportDialog
+          range={reportRange}
+          onClose={() => setReportRange(null)}
+          onOpenLesson={(l) => setReportLesson(l)}
+        />
+      )}
+
+      {reportLesson && (
+        <AttendanceDetailsDialog lesson={reportLesson} onClose={() => setReportLesson(null)} />
       )}
     </div>
   );
