@@ -198,8 +198,6 @@ function AttendanceDialog({ lesson, onClose }: { lesson: any; onClose: () => voi
   const statuses = [
     { v: "present", label: "נוכח", cls: "bg-emerald-500 text-white" },
     { v: "absent", label: "נעדר", cls: "bg-red-500 text-white" },
-    { v: "late", label: "איחור", cls: "bg-amber-500 text-white" },
-    { v: "excused", label: "מוצדק", cls: "bg-blue-500 text-white" },
   ];
 
   return (
