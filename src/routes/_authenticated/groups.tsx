@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Users, Pencil, Trash2 } from "lucide-react";
+import { Plus, Users, Pencil, Trash2, UserPlus, Search } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/groups")({
@@ -23,6 +23,8 @@ function GroupsPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const [form, setForm] = useState({ name: "", description: "", color: COLORS[0], schedule_notes: "" });
+  const [membersGroup, setMembersGroup] = useState<any>(null);
+  const [memberSearch, setMemberSearch] = useState("");
 
   const { data: groups = [] } = useQuery({
     queryKey: ["groups"],
@@ -35,6 +37,40 @@ function GroupsPage() {
       return data;
     },
   });
+
+  const { data: allStudents = [] } = useQuery({
+    queryKey: ["students"],
+    queryFn: async () => (await supabase.from("students").select("id, full_name, phone").order("full_name")).data ?? [],
+  });
+
+  const { data: groupMembers = [] } = useQuery({
+    enabled: !!membersGroup,
+    queryKey: ["group-members", membersGroup?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("group_members").select("student_id").eq("group_id", membersGroup.id);
+      return data ?? [];
+    },
+  });
+
+  const memberIds = new Set(groupMembers.map((m: any) => m.student_id));
+
+  const toggleMember = async (studentId: string, joined: boolean) => {
+    if (!membersGroup) return;
+    const { data: userRes } = await supabase.auth.getUser();
+    const coach_id = userRes.user?.id;
+    if (!coach_id) return;
+    if (joined) {
+      await supabase.from("group_members").delete().eq("group_id", membersGroup.id).eq("student_id", studentId);
+    } else {
+      await supabase.from("group_members").insert({ group_id: membersGroup.id, student_id: studentId, coach_id });
+    }
+    qc.invalidateQueries({ queryKey: ["group-members", membersGroup.id] });
+    qc.invalidateQueries({ queryKey: ["groups"] });
+  };
+
+  const filteredStudents = memberSearch.trim()
+    ? allStudents.filter((s: any) => s.full_name?.toLowerCase().includes(memberSearch.trim().toLowerCase()) || s.phone?.includes(memberSearch.trim()))
+    : allStudents;
 
   const openNew = () => {
     setEditing(null);
@@ -105,6 +141,9 @@ function GroupsPage() {
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
                   <Users className="h-3.5 w-3.5" /> {g.group_members?.length ?? 0} חניכים
                 </div>
+                <Button size="sm" variant="outline" className="w-full" onClick={() => { setMembersGroup(g); setMemberSearch(""); }}>
+                  <UserPlus className="h-4 w-4 ml-1" /> ניהול חניכים
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -141,6 +180,48 @@ function GroupsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>ביטול</Button>
             <Button onClick={save}>שמור</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!membersGroup} onOpenChange={(v) => !v && setMembersGroup(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>חניכים בקבוצה {membersGroup?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input value={memberSearch} onChange={(e) => setMemberSearch(e.target.value)} placeholder="חיפוש חניך" className="pr-10" />
+            </div>
+            <div className="max-h-[50vh] overflow-y-auto space-y-1.5">
+              {allStudents.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">אין חניכים. הוסף חניכים תחילה.</p>
+              ) : filteredStudents.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">לא נמצאו תוצאות</p>
+              ) : filteredStudents.map((s: any) => {
+                const joined = memberIds.has(s.id);
+                return (
+                  <div key={s.id} className="flex items-center justify-between p-2.5 rounded-lg border">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="h-9 w-9 rounded-full bg-primary/10 text-primary grid place-items-center font-semibold text-sm flex-shrink-0">
+                        {s.full_name?.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="font-medium text-sm truncate">{s.full_name}</div>
+                        {s.phone && <div className="text-xs text-muted-foreground">{s.phone}</div>}
+                      </div>
+                    </div>
+                    <Button size="sm" variant={joined ? "secondary" : "default"} onClick={() => toggleMember(s.id, joined)}>
+                      {joined ? "הסר" : "הוסף"}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMembersGroup(null)}>סגור</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
