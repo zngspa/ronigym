@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Dumbbell } from "lucide-react";
 
@@ -22,6 +23,8 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -61,6 +64,20 @@ function AuthPage() {
     if (res.error) toast.error("שגיאת Google", { description: String(res.error?.message ?? res.error) });
   };
 
+  const sendReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) return;
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) return toast.error("שגיאה בשליחת מייל", { description: error.message });
+    toast.success("נשלח מייל לאיפוס סיסמה", { description: "בדוק את תיבת הדואר שלך" });
+    setForgotOpen(false);
+    setResetEmail("");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/40 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -97,6 +114,13 @@ function AuthPage() {
                     <Input id="p1" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>{loading ? "..." : "התחבר"}</Button>
+                  <button
+                    type="button"
+                    onClick={() => { setResetEmail(email); setForgotOpen(true); }}
+                    className="w-full text-xs text-primary hover:underline mt-1"
+                  >
+                    שכחת סיסמה?
+                  </button>
                 </form>
               </TabsContent>
 
@@ -135,6 +159,25 @@ function AuthPage() {
           <Link to="/dashboard">חזרה לדף הבית</Link>
         </p>
       </div>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>שחזור סיסמה</DialogTitle>
+            <DialogDescription>הזן את כתובת האימייל שלך ונשלח קישור לאיפוס הסיסמה</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={sendReset} className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="reset-email">אימייל</Label>
+              <Input id="reset-email" type="email" required value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} />
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setForgotOpen(false)}>ביטול</Button>
+              <Button type="submit" disabled={loading}>{loading ? "..." : "שלח קישור"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
