@@ -6,11 +6,11 @@ import { toast } from "sonner";
 import type { ReactNode } from "react";
 
 const nav = [
-  { to: "/dashboard", label: "לוח בקרה", icon: LayoutDashboard },
+  { to: "/lessons", label: "שיעורים ונוכחות", icon: CalendarCheck },
   { to: "/groups", label: "קבוצות", icon: UsersRound },
   { to: "/students", label: "חניכים", icon: Users },
-  { to: "/lessons", label: "שיעורים ונוכחות", icon: CalendarCheck },
   { to: "/payments", label: "תשלומים", icon: Wallet },
+  { to: "/dashboard", label: "לוח בקרה", icon: LayoutDashboard },
 ] as const;
 
 export function AppLayout({ children }: { children: ReactNode }) {
