@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,7 +33,13 @@ function StudentDetail() {
     },
   });
 
-  useEffect(() => { if (student) setForm(student); }, [student]);
+  const loadedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (student && loadedFor.current !== student.id) {
+      loadedFor.current = student.id;
+      setForm(student);
+    }
+  }, [student]);
 
   const { data: memberships = [] } = useQuery({
     queryKey: ["student-groups", studentId],
