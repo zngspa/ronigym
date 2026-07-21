@@ -33,7 +33,13 @@ function StudentDetail() {
     },
   });
 
-  useEffect(() => { if (student) setForm(student); }, [student]);
+  const loadedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (student && loadedFor.current !== student.id) {
+      loadedFor.current = student.id;
+      setForm(student);
+    }
+  }, [student]);
 
   const { data: memberships = [] } = useQuery({
     queryKey: ["student-groups", studentId],
