@@ -132,7 +132,13 @@ function PaymentsPage() {
       `${lastLine}\n` +
       `תודה רבה! 🙏`;
     const url = `https://wa.me/${intl}?text=${encodeURIComponent(msg)}`;
-    window.open(url, "_blank");
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
 
   const [payFor, setPayFor] = useState<any>(null);
