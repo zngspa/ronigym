@@ -59,6 +59,113 @@ export type Database = {
           },
         ]
       }
+      exercise_categories: {
+        Row: {
+          coach_id: string
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          coach_id: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          coach_id?: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      exercises: {
+        Row: {
+          category_id: string | null
+          coach_id: string
+          created_at: string
+          default_duration_seconds: number
+          description: string | null
+          id: string
+          image_url: string | null
+          video_url: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          coach_id: string
+          created_at?: string
+          default_duration_seconds?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          video_url?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          coach_id?: string
+          created_at?: string
+          default_duration_seconds?: number
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          video_url?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercises_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_accounts: {
+        Row: {
+          access_token: string
+          coach_id: string
+          created_at: string
+          expires_at: string | null
+          google_email: string | null
+          refresh_token: string | null
+          scope: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          coach_id: string
+          created_at?: string
+          expires_at?: string | null
+          google_email?: string | null
+          refresh_token?: string | null
+          scope?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          coach_id?: string
+          created_at?: string
+          expires_at?: string | null
+          google_email?: string | null
+          refresh_token?: string | null
+          scope?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           coach_id: string
@@ -308,6 +415,84 @@ export type Database = {
           monthly_fee?: number | null
           notes?: string | null
           phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      workout_plan_items: {
+        Row: {
+          coach_id: string
+          created_at: string
+          duration_seconds: number | null
+          exercise_id: string
+          id: string
+          position: number
+          rest_after_seconds: number | null
+          workout_plan_id: string
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          duration_seconds?: number | null
+          exercise_id: string
+          id?: string
+          position?: number
+          rest_after_seconds?: number | null
+          workout_plan_id: string
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          duration_seconds?: number | null
+          exercise_id?: string
+          id?: string
+          position?: number
+          rest_after_seconds?: number | null
+          workout_plan_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_plan_items_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_plan_items_workout_plan_id_fkey"
+            columns: ["workout_plan_id"]
+            isOneToOne: false
+            referencedRelation: "workout_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_plans: {
+        Row: {
+          coach_id: string
+          created_at: string
+          default_rest_seconds: number
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          coach_id: string
+          created_at?: string
+          default_rest_seconds?: number
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          coach_id?: string
+          created_at?: string
+          default_rest_seconds?: number
+          description?: string | null
+          id?: string
+          name?: string
           updated_at?: string
         }
         Relationships: []

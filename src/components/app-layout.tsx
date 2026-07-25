@@ -1,15 +1,29 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Users, UsersRound, CalendarCheck, Wallet, LogOut, Dumbbell } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  UsersRound,
+  CalendarCheck,
+  Wallet,
+  LogOut,
+  Dumbbell,
+  BookOpen,
+  ListChecks,
+  Database,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
 
 const nav = [
   { to: "/lessons", label: "שיעורים ונוכחות", icon: CalendarCheck },
   { to: "/groups", label: "קבוצות", icon: UsersRound },
+  { to: "/exercises", label: "תרגילים", icon: BookOpen },
+  { to: "/workouts", label: "תוכניות אימון", icon: ListChecks },
   { to: "/students", label: "חניכים", icon: Users },
   { to: "/payments", label: "תשלומים", icon: Wallet },
+  { to: "/backup", label: "גיבוי וייבוא", icon: Database },
   { to: "/dashboard", label: "לוח בקרה", icon: LayoutDashboard },
 ] as const;
 
@@ -57,7 +71,11 @@ export function AppLayout({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="p-3 border-t border-sidebar-border">
-          <Button variant="ghost" onClick={signOut} className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
+          <Button
+            variant="ghost"
+            onClick={signOut}
+            className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
             <LogOut className="h-4 w-4 ml-2" /> התנתקות
           </Button>
         </div>

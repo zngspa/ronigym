@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Trash2, Save, Wallet, CalendarCheck, UsersRound, Plus } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/students/$studentId")({
+export const Route = createFileRoute("/_authenticated/students_/$studentId")({
   component: StudentDetail,
   head: () => ({ meta: [{ title: "כרטיס חניך — מאמן" }] }),
 });
