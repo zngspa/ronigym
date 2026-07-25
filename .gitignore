@@ -20,8 +20,8 @@ dist-ssr
 .wrangler/
 .dev.vars
 
-# Environment variables (contains secrets - never commit)
-.env
+# Local-only environment secrets (never commit) - .env itself IS committed
+# with non-sensitive values only; real secrets live in .env.local
 .env.local
 .env.*.local
 
