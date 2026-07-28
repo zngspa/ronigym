@@ -222,13 +222,34 @@ function StudentsPage() {
                         <Phone className="h-3 w-3" /> {s.phone}
                       </div>
                     )}
+                    <div className="flex items-center gap-1 flex-wrap mt-1">
+                      {groupsOfStudent(s.id).map((g: any) => (
+                        <span
+                          key={g.id}
+                          className="text-[10px] px-1.5 py-0.5 rounded-full text-white"
+                          style={{ backgroundColor: g.color || "#3B82F6" }}
+                        >
+                          {g.name}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" asChild aria-label="פתח כרטיס פעילות">
-                  <Link to="/students/$studentId" params={{ studentId: s.id }}>
-                    <ChevronLeft className="h-4 w-4 text-muted-foreground" />
-                  </Link>
-                </Button>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="שיוך לקבוצות"
+                    onClick={() => setGroupsFor(s)}
+                  >
+                    <UsersRound className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  <Button variant="ghost" size="icon" asChild aria-label="פתח כרטיס פעילות">
+                    <Link to="/students/$studentId" params={{ studentId: s.id }}>
+                      <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -243,6 +264,33 @@ function StudentsPage() {
             <div><Label>טלפון</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
             <div><Label>אימייל</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
             <div><Label>תשלום חודשי (₪)</Label><Input type="number" value={form.monthly_fee} onChange={(e) => setForm({ ...form, monthly_fee: e.target.value })} /></div>
+            <div>
+              <Label>שיוך לקבוצות</Label>
+              {groups.length === 0 ? (
+                <p className="text-xs text-muted-foreground mt-1">אין קבוצות עדיין — ניתן ליצור בדף "קבוצות".</p>
+              ) : (
+                <div className="flex items-center gap-2 flex-wrap mt-1.5">
+                  {groups.map((g: any) => {
+                    const on = newGroupIds.includes(g.id);
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() =>
+                          setNewGroupIds((prev) =>
+                            on ? prev.filter((id) => id !== g.id) : [...prev, g.id],
+                          )
+                        }
+                        className={`px-3 py-1 rounded-full text-xs border ${on ? "text-white border-transparent" : "bg-muted/50 border-transparent"}`}
+                        style={on ? { backgroundColor: g.color || "#3B82F6" } : undefined}
+                      >
+                        {g.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">שאר הפרטים (ת.ז, סוג דם, בריאות וכו') ניתן להזין בכרטיס האישי לאחר היצירה.</p>
           </div>
           <DialogFooter>
@@ -288,6 +336,41 @@ function StudentsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditOpen(false)}>ביטול</Button>
             <Button onClick={saveEdit}><Save className="h-4 w-4 ml-1" /> שמור שינויים</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!groupsFor} onOpenChange={(o) => !o && setGroupsFor(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>שיוך {groupsFor?.full_name} לקבוצות</DialogTitle></DialogHeader>
+          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+            {groups.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">אין קבוצות עדיין.</p>
+            ) : (
+              groups.map((g: any) => {
+                const isMember = memberships.some(
+                  (m: any) => m.student_id === groupsFor?.id && m.group_id === g.id,
+                );
+                return (
+                  <div key={g.id} className="flex items-center justify-between gap-3 p-2.5 border rounded-lg">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: g.color || "#3B82F6" }} />
+                      <span className="text-sm truncate">{g.name}</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={isMember ? "outline" : "default"}
+                      onClick={() => toggleMembership(groupsFor.id, g.id, isMember)}
+                    >
+                      {isMember ? "הסר" : "צרף"}
+                    </Button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setGroupsFor(null)}>סגור</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
