@@ -23,7 +23,10 @@ import {
   Clock,
   Dumbbell,
   ChevronLeft,
+  Pencil,
+  Save,
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import {
   DndContext,
@@ -74,11 +77,13 @@ function SortableRow({
   index,
   onChange,
   onRemove,
+  onEdit,
 }: {
   row: Row;
   index: number;
   onChange: (id: string, patch: Partial<Row>) => void;
   onRemove: (id: string) => void;
+  onEdit: (row: Row) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: row.id,
@@ -144,6 +149,15 @@ function SortableRow({
           }
         />
       </div>
+      <Button
+        size="icon"
+        variant="ghost"
+        className="flex-shrink-0"
+        onClick={() => onEdit(row)}
+        aria-label="ערוך תרגיל"
+      >
+        <Pencil className="h-4 w-4 text-muted-foreground" />
+      </Button>
       <Button
         size="icon"
         variant="ghost"
