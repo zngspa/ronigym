@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Search, Phone, ChevronLeft, Save } from "lucide-react";
+import { Plus, Search, Phone, ChevronLeft, Save, UsersRound } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/students")({
@@ -40,6 +40,8 @@ function StudentsPage() {
   const [form, setForm] = useState(emptyStudentForm);
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState<any>(null);
+  const [newGroupIds, setNewGroupIds] = useState<string[]>([]);
+  const [groupsFor, setGroupsFor] = useState<any>(null);
 
   const { data: students = [] } = useQuery({
     queryKey: ["students"],
@@ -49,6 +51,48 @@ function StudentsPage() {
       return data;
     },
   });
+
+  const { data: groups = [] } = useQuery({
+    queryKey: ["groups"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("groups").select("*").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: memberships = [] } = useQuery({
+    queryKey: ["group-members"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("group_members").select("group_id, student_id");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const groupsOfStudent = (studentId: string) =>
+    memberships
+      .filter((m: any) => m.student_id === studentId)
+      .map((m: any) => groups.find((g: any) => g.id === m.group_id))
+      .filter(Boolean);
+
+  const toggleMembership = async (studentId: string, groupId: string, isMember: boolean) => {
+    const { data: userRes } = await supabase.auth.getUser();
+    const coach_id = userRes.user?.id;
+    if (!coach_id) return;
+    const { error } = isMember
+      ? await supabase
+          .from("group_members")
+          .delete()
+          .eq("student_id", studentId)
+          .eq("group_id", groupId)
+      : await supabase
+          .from("group_members")
+          .insert({ coach_id, student_id: studentId, group_id: groupId });
+    if (error) return toast.error(error.message);
+    qc.invalidateQueries({ queryKey: ["group-members"] });
+    qc.invalidateQueries({ queryKey: ["groups"] });
+  };
 
   const filtered = useMemo(() => {
     if (!q.trim()) return students;
@@ -63,18 +107,27 @@ function StudentsPage() {
     const { data: userRes } = await supabase.auth.getUser();
     const coach_id = userRes.user?.id;
     if (!coach_id) return;
-    const { error } = await supabase.from("students").insert({
+    const { data: inserted, error } = await supabase.from("students").insert({
       coach_id,
       full_name: form.full_name,
       phone: form.phone || null,
       email: form.email || null,
       monthly_fee: form.monthly_fee ? Number(form.monthly_fee) : 0,
-    });
+    }).select("id").single();
     if (error) return toast.error(error.message);
+    if (inserted && newGroupIds.length > 0) {
+      const { error: memErr } = await supabase.from("group_members").insert(
+        newGroupIds.map((gid) => ({ coach_id, student_id: inserted.id, group_id: gid })),
+      );
+      if (memErr) toast.error(memErr.message);
+    }
     toast.success("חניך נוסף");
     setOpen(false);
     setForm(emptyStudentForm);
+    setNewGroupIds([]);
     qc.invalidateQueries({ queryKey: ["students"] });
+    qc.invalidateQueries({ queryKey: ["group-members"] });
+    qc.invalidateQueries({ queryKey: ["groups"] });
   };
 
   const openEdit = (student: any) => {
