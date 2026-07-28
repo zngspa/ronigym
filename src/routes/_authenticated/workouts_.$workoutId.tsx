@@ -177,6 +177,7 @@ function WorkoutBuilderPage() {
   const [playing, setPlaying] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [addCategory, setAddCategory] = useState<string>("all");
+  const [editEx, setEditEx] = useState<any>(null);
   const dirtyIds = useRef<Set<string>>(new Set());
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -219,21 +220,31 @@ function WorkoutBuilderPage() {
     queryFn: async () => (await supabase.from("exercises").select("*").order("name")).data ?? [],
   });
 
-  const loadedFor = useRef<string | null>(null);
+  // Keep local rows in sync with the server list (new/removed items, reordering,
+  // exercise edits) while preserving in-flight duration/rest edits.
+  const serverSignature = useMemo(
+    () =>
+      JSON.stringify(
+        items.map((it: any) => [it.id, it.position, it.exercises?.name, it.exercises?.description, it.exercises?.default_duration_seconds]),
+      ),
+    [items],
+  );
   useEffect(() => {
-    if (workoutId !== loadedFor.current) {
-      loadedFor.current = workoutId;
-      setRows(
-        items.map((it: any) => ({
+    setRows((prev) => {
+      const prevById = new Map(prev.map((r) => [r.id, r]));
+      return items.map((it: any) => {
+        const existing = prevById.get(it.id);
+        return {
           id: it.id,
           position: it.position,
-          duration_seconds: it.duration_seconds,
-          rest_after_seconds: it.rest_after_seconds,
+          duration_seconds: existing ? existing.duration_seconds : it.duration_seconds,
+          rest_after_seconds: existing ? existing.rest_after_seconds : it.rest_after_seconds,
           exercise: it.exercises,
-        })),
-      );
-    }
-  }, [items, workoutId]);
+        };
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverSignature, workoutId]);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -305,6 +316,25 @@ function WorkoutBuilderPage() {
     });
     if (error) return toast.error(error.message);
     toast.success(`${exercise.name} נוסף לתוכנית`);
+    await qc.invalidateQueries({ queryKey: ["workout-plan-items", workoutId] });
+  };
+
+  const saveExercise = async () => {
+    if (!editEx?.id) return;
+    if (!String(editEx.name ?? "").trim()) return toast.error("נדרש שם לתרגיל");
+    const { error } = await supabase
+      .from("exercises")
+      .update({
+        name: editEx.name.trim(),
+        description: editEx.description || null,
+        default_duration_seconds: Number(editEx.default_duration_seconds) || 30,
+        category_id: editEx.category_id || null,
+      })
+      .eq("id", editEx.id);
+    if (error) return toast.error(error.message);
+    toast.success("התרגיל עודכן");
+    setEditEx(null);
+    qc.invalidateQueries({ queryKey: ["exercises"] });
     qc.invalidateQueries({ queryKey: ["workout-plan-items", workoutId] });
   };
 
@@ -417,6 +447,15 @@ function WorkoutBuilderPage() {
                   index={idx}
                   onChange={updateRow}
                   onRemove={removeRow}
+                  onEdit={(r) =>
+                    setEditEx({
+                      id: r.exercise.id,
+                      name: r.exercise.name,
+                      description: r.exercise.description ?? "",
+                      default_duration_seconds: r.exercise.default_duration_seconds,
+                      category_id: (r.exercise as any).category_id ?? "",
+                    })
+                  }
                 />
               ))}
             </div>
@@ -492,6 +531,77 @@ function WorkoutBuilderPage() {
       {playing && (
         <WorkoutPlayer planName={plan.name} items={playerItems} onClose={() => setPlaying(false)} />
       )}
+
+      {/* Edit exercise dialog */}
+      <Dialog open={!!editEx} onOpenChange={(o) => !o && setEditEx(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>עריכת תרגיל</DialogTitle>
+          </DialogHeader>
+          {editEx && (
+            <div className="space-y-3">
+              <div>
+                <Label>שם התרגיל *</Label>
+                <Input
+                  value={editEx.name}
+                  onChange={(e) => setEditEx({ ...editEx, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>תיאור</Label>
+                <Textarea
+                  rows={3}
+                  value={editEx.description}
+                  onChange={(e) => setEditEx({ ...editEx, description: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>משך ברירת מחדל (שניות)</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  value={editEx.default_duration_seconds}
+                  onChange={(e) =>
+                    setEditEx({ ...editEx, default_duration_seconds: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <Label>קטגוריה</Label>
+                <div className="flex items-center gap-2 flex-wrap mt-1">
+                  <button
+                    onClick={() => setEditEx({ ...editEx, category_id: "" })}
+                    className={`px-3 py-1 rounded-full text-xs border ${!editEx.category_id ? "bg-primary text-primary-foreground border-primary" : "bg-muted/50 border-transparent"}`}
+                  >
+                    ללא
+                  </button>
+                  {categories.map((c: any) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setEditEx({ ...editEx, category_id: c.id })}
+                      className={`px-3 py-1 rounded-full text-xs border ${editEx.category_id === c.id ? "text-white border-transparent" : "bg-muted/50 border-transparent"}`}
+                      style={editEx.category_id === c.id ? { backgroundColor: c.color } : undefined}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                לעדכון תמונה/וידאו לתרגיל — בדף "תרגילים".
+              </p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditEx(null)}>
+              ביטול
+            </Button>
+            <Button onClick={saveExercise}>
+              <Save className="h-4 w-4 ml-1" /> שמור
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
