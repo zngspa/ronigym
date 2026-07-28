@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Search, Phone, ChevronLeft, Save } from "lucide-react";
+import { Plus, Search, Phone, ChevronLeft, Save, UsersRound } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/students")({
@@ -40,6 +40,8 @@ function StudentsPage() {
   const [form, setForm] = useState(emptyStudentForm);
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState<any>(null);
+  const [newGroupIds, setNewGroupIds] = useState<string[]>([]);
+  const [groupsFor, setGroupsFor] = useState<any>(null);
 
   const { data: students = [] } = useQuery({
     queryKey: ["students"],
@@ -49,6 +51,48 @@ function StudentsPage() {
       return data;
     },
   });
+
+  const { data: groups = [] } = useQuery({
+    queryKey: ["groups"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("groups").select("*").order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: memberships = [] } = useQuery({
+    queryKey: ["group-members"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("group_members").select("group_id, student_id");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const groupsOfStudent = (studentId: string) =>
+    memberships
+      .filter((m: any) => m.student_id === studentId)
+      .map((m: any) => groups.find((g: any) => g.id === m.group_id))
+      .filter(Boolean);
+
+  const toggleMembership = async (studentId: string, groupId: string, isMember: boolean) => {
+    const { data: userRes } = await supabase.auth.getUser();
+    const coach_id = userRes.user?.id;
+    if (!coach_id) return;
+    const { error } = isMember
+      ? await supabase
+          .from("group_members")
+          .delete()
+          .eq("student_id", studentId)
+          .eq("group_id", groupId)
+      : await supabase
+          .from("group_members")
+          .insert({ coach_id, student_id: studentId, group_id: groupId });
+    if (error) return toast.error(error.message);
+    qc.invalidateQueries({ queryKey: ["group-members"] });
+    qc.invalidateQueries({ queryKey: ["groups"] });
+  };
 
   const filtered = useMemo(() => {
     if (!q.trim()) return students;
@@ -63,18 +107,27 @@ function StudentsPage() {
     const { data: userRes } = await supabase.auth.getUser();
     const coach_id = userRes.user?.id;
     if (!coach_id) return;
-    const { error } = await supabase.from("students").insert({
+    const { data: inserted, error } = await supabase.from("students").insert({
       coach_id,
       full_name: form.full_name,
       phone: form.phone || null,
       email: form.email || null,
       monthly_fee: form.monthly_fee ? Number(form.monthly_fee) : 0,
-    });
+    }).select("id").single();
     if (error) return toast.error(error.message);
+    if (inserted && newGroupIds.length > 0) {
+      const { error: memErr } = await supabase.from("group_members").insert(
+        newGroupIds.map((gid) => ({ coach_id, student_id: inserted.id, group_id: gid })),
+      );
+      if (memErr) toast.error(memErr.message);
+    }
     toast.success("חניך נוסף");
     setOpen(false);
     setForm(emptyStudentForm);
+    setNewGroupIds([]);
     qc.invalidateQueries({ queryKey: ["students"] });
+    qc.invalidateQueries({ queryKey: ["group-members"] });
+    qc.invalidateQueries({ queryKey: ["groups"] });
   };
 
   const openEdit = (student: any) => {
@@ -169,13 +222,34 @@ function StudentsPage() {
                         <Phone className="h-3 w-3" /> {s.phone}
                       </div>
                     )}
+                    <div className="flex items-center gap-1 flex-wrap mt-1">
+                      {groupsOfStudent(s.id).map((g: any) => (
+                        <span
+                          key={g.id}
+                          className="text-[10px] px-1.5 py-0.5 rounded-full text-white"
+                          style={{ backgroundColor: g.color || "#3B82F6" }}
+                        >
+                          {g.name}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" asChild aria-label="פתח כרטיס פעילות">
-                  <Link to="/students/$studentId" params={{ studentId: s.id }}>
-                    <ChevronLeft className="h-4 w-4 text-muted-foreground" />
-                  </Link>
-                </Button>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="שיוך לקבוצות"
+                    onClick={() => setGroupsFor(s)}
+                  >
+                    <UsersRound className="h-4 w-4 text-muted-foreground" />
+                  </Button>
+                  <Button variant="ghost" size="icon" asChild aria-label="פתח כרטיס פעילות">
+                    <Link to="/students/$studentId" params={{ studentId: s.id }}>
+                      <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+                    </Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))}
@@ -190,6 +264,33 @@ function StudentsPage() {
             <div><Label>טלפון</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
             <div><Label>אימייל</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
             <div><Label>תשלום חודשי (₪)</Label><Input type="number" value={form.monthly_fee} onChange={(e) => setForm({ ...form, monthly_fee: e.target.value })} /></div>
+            <div>
+              <Label>שיוך לקבוצות</Label>
+              {groups.length === 0 ? (
+                <p className="text-xs text-muted-foreground mt-1">אין קבוצות עדיין — ניתן ליצור בדף "קבוצות".</p>
+              ) : (
+                <div className="flex items-center gap-2 flex-wrap mt-1.5">
+                  {groups.map((g: any) => {
+                    const on = newGroupIds.includes(g.id);
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        onClick={() =>
+                          setNewGroupIds((prev) =>
+                            on ? prev.filter((id) => id !== g.id) : [...prev, g.id],
+                          )
+                        }
+                        className={`px-3 py-1 rounded-full text-xs border ${on ? "text-white border-transparent" : "bg-muted/50 border-transparent"}`}
+                        style={on ? { backgroundColor: g.color || "#3B82F6" } : undefined}
+                      >
+                        {g.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground">שאר הפרטים (ת.ז, סוג דם, בריאות וכו') ניתן להזין בכרטיס האישי לאחר היצירה.</p>
           </div>
           <DialogFooter>
@@ -235,6 +336,41 @@ function StudentsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditOpen(false)}>ביטול</Button>
             <Button onClick={saveEdit}><Save className="h-4 w-4 ml-1" /> שמור שינויים</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!groupsFor} onOpenChange={(o) => !o && setGroupsFor(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>שיוך {groupsFor?.full_name} לקבוצות</DialogTitle></DialogHeader>
+          <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+            {groups.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">אין קבוצות עדיין.</p>
+            ) : (
+              groups.map((g: any) => {
+                const isMember = memberships.some(
+                  (m: any) => m.student_id === groupsFor?.id && m.group_id === g.id,
+                );
+                return (
+                  <div key={g.id} className="flex items-center justify-between gap-3 p-2.5 border rounded-lg">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: g.color || "#3B82F6" }} />
+                      <span className="text-sm truncate">{g.name}</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={isMember ? "outline" : "default"}
+                      onClick={() => toggleMembership(groupsFor.id, g.id, isMember)}
+                    >
+                      {isMember ? "הסר" : "צרף"}
+                    </Button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setGroupsFor(null)}>סגור</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
