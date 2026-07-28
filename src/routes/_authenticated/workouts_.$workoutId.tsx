@@ -200,7 +200,7 @@ function WorkoutBuilderPage() {
       const { data, error } = await supabase
         .from("workout_plan_items")
         .select(
-          "*, exercises(id, name, description, image_url, video_url, default_duration_seconds, exercise_categories(name, color))",
+          "*, exercises(id, name, description, image_url, video_url, default_duration_seconds, category_id, exercise_categories(name, color))",
         )
         .eq("workout_plan_id", workoutId)
         .order("position");
