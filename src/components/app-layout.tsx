@@ -12,17 +12,22 @@ import {
   BookOpen,
   ListChecks,
   Database,
+  Home,
+  FileBarChart,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
+import { useWeeklyAutoBackup } from "@/hooks/use-weekly-backup";
 
 const nav = [
+  { to: "/home", label: "דף ראשי", icon: Home },
   { to: "/lessons", label: "שיעורים ונוכחות", icon: CalendarCheck },
   { to: "/groups", label: "קבוצות", icon: UsersRound },
   { to: "/exercises", label: "תרגילים", icon: BookOpen },
   { to: "/workouts", label: "תוכניות אימון", icon: ListChecks },
   { to: "/students", label: "חניכים", icon: Users },
   { to: "/payments", label: "תשלומים", icon: Wallet },
+  { to: "/reports", label: "דוחות נוכחות", icon: FileBarChart },
   { to: "/backup", label: "גיבוי וייבוא", icon: Database },
   { to: "/dashboard", label: "לוח בקרה", icon: LayoutDashboard },
 ] as const;
@@ -30,6 +35,7 @@ const nav = [
 export function AppLayout({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  useWeeklyAutoBackup();
 
   const signOut = async () => {
     await supabase.auth.signOut();

@@ -68,9 +68,17 @@ function GroupsPage() {
     qc.invalidateQueries({ queryKey: ["groups"] });
   };
 
-  const filteredStudents = memberSearch.trim()
+  const searched = memberSearch.trim()
     ? allStudents.filter((s: any) => s.full_name?.toLowerCase().includes(memberSearch.trim().toLowerCase()) || s.phone?.includes(memberSearch.trim()))
     : allStudents;
+
+  // Group members first, then everyone else — each block sorted alphabetically (Hebrew).
+  const filteredStudents = [...searched].sort((a: any, b: any) => {
+    const am = memberIds.has(a.id) ? 0 : 1;
+    const bm = memberIds.has(b.id) ? 0 : 1;
+    if (am !== bm) return am - bm;
+    return String(a.full_name ?? "").localeCompare(String(b.full_name ?? ""), "he");
+  });
 
   const openNew = () => {
     setEditing(null);

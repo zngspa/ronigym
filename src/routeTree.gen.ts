@@ -17,6 +17,7 @@ import { Route as AuthenticatedWorkoutsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
 import { Route as AuthenticatedLessonsRouteImport } from './routes/_authenticated/lessons'
+import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedExercisesRouteImport } from './routes/_authenticated/exercises'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -62,6 +63,11 @@ const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
 const AuthenticatedLessonsRoute = AuthenticatedLessonsRouteImport.update({
   id: '/lessons',
   path: '/lessons',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
@@ -111,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exercises': typeof AuthenticatedExercisesRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/home': typeof AuthenticatedHomeRoute
   '/lessons': typeof AuthenticatedLessonsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/students': typeof AuthenticatedStudentsRoute
@@ -127,6 +134,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exercises': typeof AuthenticatedExercisesRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/home': typeof AuthenticatedHomeRoute
   '/lessons': typeof AuthenticatedLessonsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
   '/students': typeof AuthenticatedStudentsRoute
@@ -145,6 +153,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exercises': typeof AuthenticatedExercisesRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
+  '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/lessons': typeof AuthenticatedLessonsRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRoute
@@ -163,6 +172,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exercises'
     | '/groups'
+    | '/home'
     | '/lessons'
     | '/payments'
     | '/students'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exercises'
     | '/groups'
+    | '/home'
     | '/lessons'
     | '/payments'
     | '/students'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/exercises'
     | '/_authenticated/groups'
+    | '/_authenticated/home'
     | '/_authenticated/lessons'
     | '/_authenticated/payments'
     | '/_authenticated/students'
@@ -270,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLessonsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/home': {
+      id: '/_authenticated/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/groups': {
       id: '/_authenticated/groups'
       path: '/groups'
@@ -327,6 +346,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExercisesRoute: typeof AuthenticatedExercisesRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedLessonsRoute: typeof AuthenticatedLessonsRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRoute
@@ -341,6 +361,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExercisesRoute: AuthenticatedExercisesRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedLessonsRoute: AuthenticatedLessonsRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRoute,
