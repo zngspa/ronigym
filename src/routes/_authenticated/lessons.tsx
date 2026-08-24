@@ -70,12 +70,12 @@ function LessonsPage() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold">שיעורים ונוכחות</h1>
           <p className="text-sm text-muted-foreground mt-1">רישום שיעורים ונוכחות חניכים</p>
         </div>
-        <div className="flex gap-2">
+        <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap">
           <Button variant="outline" onClick={() => setReportRange("month")}>
             <CalendarRange className="h-4 w-4 ml-1" /> חודשי
           </Button>

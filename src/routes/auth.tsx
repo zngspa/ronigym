@@ -28,7 +28,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard" });
+      if (data.session) navigate({ to: "/home" });
     });
   }, [navigate]);
 
@@ -39,7 +39,7 @@ function AuthPage() {
     setLoading(false);
     if (error) return toast.error("שגיאת התחברות", { description: error.message });
     toast.success("ברוך שובך!");
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/home" });
   };
 
   const signUp = async (e: React.FormEvent) => {
@@ -56,7 +56,7 @@ function AuthPage() {
     setLoading(false);
     if (error) return toast.error("שגיאת הרשמה", { description: error.message });
     toast.success("נרשמת בהצלחה!");
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/home" });
   };
 
   const google = async () => {
@@ -156,7 +156,7 @@ function AuthPage() {
         </Card>
 
         <p className="text-center text-xs text-muted-foreground mt-4">
-          <Link to="/dashboard">חזרה לדף הבית</Link>
+          <Link to="/home">חזרה לדף הבית</Link>
         </p>
       </div>
 

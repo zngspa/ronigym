@@ -40,7 +40,7 @@ function ResetPasswordPage() {
     setLoading(false);
     if (error) return toast.error("שגיאה", { description: error.message });
     toast.success("הסיסמה עודכנה בהצלחה");
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/home" });
   };
 
   return (
