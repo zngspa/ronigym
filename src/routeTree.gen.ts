@@ -15,8 +15,10 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedWorkoutsRouteImport } from './routes/_authenticated/workouts'
 import { Route as AuthenticatedStudentsRouteImport } from './routes/_authenticated/students'
+import { Route as AuthenticatedReportsRouteImport } from './routes/_authenticated/reports'
 import { Route as AuthenticatedPaymentsRouteImport } from './routes/_authenticated/payments'
 import { Route as AuthenticatedLessonsRouteImport } from './routes/_authenticated/lessons'
+import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedExercisesRouteImport } from './routes/_authenticated/exercises'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -54,6 +56,11 @@ const AuthenticatedStudentsRoute = AuthenticatedStudentsRouteImport.update({
   path: '/students',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReportsRoute = AuthenticatedReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
@@ -62,6 +69,11 @@ const AuthenticatedPaymentsRoute = AuthenticatedPaymentsRouteImport.update({
 const AuthenticatedLessonsRoute = AuthenticatedLessonsRouteImport.update({
   id: '/lessons',
   path: '/lessons',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
@@ -111,8 +123,10 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exercises': typeof AuthenticatedExercisesRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/home': typeof AuthenticatedHomeRoute
   '/lessons': typeof AuthenticatedLessonsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/students': typeof AuthenticatedStudentsRoute
   '/workouts': typeof AuthenticatedWorkoutsRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -127,8 +141,10 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/exercises': typeof AuthenticatedExercisesRoute
   '/groups': typeof AuthenticatedGroupsRoute
+  '/home': typeof AuthenticatedHomeRoute
   '/lessons': typeof AuthenticatedLessonsRoute
   '/payments': typeof AuthenticatedPaymentsRoute
+  '/reports': typeof AuthenticatedReportsRoute
   '/students': typeof AuthenticatedStudentsRoute
   '/workouts': typeof AuthenticatedWorkoutsRoute
   '/students/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -145,8 +161,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/exercises': typeof AuthenticatedExercisesRoute
   '/_authenticated/groups': typeof AuthenticatedGroupsRoute
+  '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/lessons': typeof AuthenticatedLessonsRoute
   '/_authenticated/payments': typeof AuthenticatedPaymentsRoute
+  '/_authenticated/reports': typeof AuthenticatedReportsRoute
   '/_authenticated/students': typeof AuthenticatedStudentsRoute
   '/_authenticated/workouts': typeof AuthenticatedWorkoutsRoute
   '/_authenticated/students_/$studentId': typeof AuthenticatedStudentsStudentIdRoute
@@ -163,8 +181,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exercises'
     | '/groups'
+    | '/home'
     | '/lessons'
     | '/payments'
+    | '/reports'
     | '/students'
     | '/workouts'
     | '/students/$studentId'
@@ -179,8 +199,10 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/exercises'
     | '/groups'
+    | '/home'
     | '/lessons'
     | '/payments'
+    | '/reports'
     | '/students'
     | '/workouts'
     | '/students/$studentId'
@@ -196,8 +218,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/exercises'
     | '/_authenticated/groups'
+    | '/_authenticated/home'
     | '/_authenticated/lessons'
     | '/_authenticated/payments'
+    | '/_authenticated/reports'
     | '/_authenticated/students'
     | '/_authenticated/workouts'
     | '/_authenticated/students_/$studentId'
@@ -256,6 +280,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudentsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/reports': {
+      id: '/_authenticated/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AuthenticatedReportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/payments': {
       id: '/_authenticated/payments'
       path: '/payments'
@@ -268,6 +299,13 @@ declare module '@tanstack/react-router' {
       path: '/lessons'
       fullPath: '/lessons'
       preLoaderRoute: typeof AuthenticatedLessonsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/home': {
+      id: '/_authenticated/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/groups': {
@@ -327,8 +365,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedExercisesRoute: typeof AuthenticatedExercisesRoute
   AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRoute
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedLessonsRoute: typeof AuthenticatedLessonsRoute
   AuthenticatedPaymentsRoute: typeof AuthenticatedPaymentsRoute
+  AuthenticatedReportsRoute: typeof AuthenticatedReportsRoute
   AuthenticatedStudentsRoute: typeof AuthenticatedStudentsRoute
   AuthenticatedWorkoutsRoute: typeof AuthenticatedWorkoutsRoute
   AuthenticatedStudentsStudentIdRoute: typeof AuthenticatedStudentsStudentIdRoute
@@ -341,8 +381,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedExercisesRoute: AuthenticatedExercisesRoute,
   AuthenticatedGroupsRoute: AuthenticatedGroupsRoute,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedLessonsRoute: AuthenticatedLessonsRoute,
   AuthenticatedPaymentsRoute: AuthenticatedPaymentsRoute,
+  AuthenticatedReportsRoute: AuthenticatedReportsRoute,
   AuthenticatedStudentsRoute: AuthenticatedStudentsRoute,
   AuthenticatedWorkoutsRoute: AuthenticatedWorkoutsRoute,
   AuthenticatedStudentsStudentIdRoute: AuthenticatedStudentsStudentIdRoute,
@@ -362,3 +404,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
