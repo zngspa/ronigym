@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { getLastWeeklyBackup, isWeeklyBackupEnabled, runWeeklyBackup, setWeeklyBackupEnabled } from "@/hooks/use-weekly-backup";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -487,6 +488,8 @@ function BackupPage() {
         </CardContent>
       </Card>
 
+      <WeeklyBackupCard />
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -627,5 +630,52 @@ function BackupPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function WeeklyBackupCard() {
+  const [enabled, setEnabled] = useState(false);
+  const [last, setLast] = useState<Date | null>(null);
+  const [running, setRunning] = useState(false);
+  useEffect(() => {
+    setEnabled(isWeeklyBackupEnabled());
+    setLast(getLastWeeklyBackup());
+  }, []);
+  const toggle = () => {
+    setWeeklyBackupEnabled(!enabled);
+    setEnabled(!enabled);
+    toast.success(!enabled ? "גיבוי שבועי אוטומטי הופעל" : "גיבוי שבועי אוטומטי כובה");
+  };
+  const runNow = async () => {
+    setRunning(true);
+    try {
+      const res = await runWeeklyBackup();
+      setLast(new Date());
+      toast.success("הגיבוי נשמר ב-Google Drive");
+      window.open(res.spreadsheetUrl, "_blank");
+    } catch (e: any) {
+      toast.error(e.message ?? "שגיאה בגיבוי");
+    } finally {
+      setRunning(false);
+    }
+  };
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">גיבוי שבועי אוטומטי</CardTitle>
+        <CardDescription>
+          פעם בשבוע, בכניסה לאפליקציה, נוצר קובץ גיבוי חדש בדרייב שלך (דורש חיבור Google).
+          {last && ` גיבוי אחרון: ${last.toLocaleDateString("he-IL")}`}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-wrap gap-2">
+        <Button variant={enabled ? "default" : "outline"} onClick={toggle}>
+          {enabled ? "פעיל — לחץ לכיבוי" : "הפעל גיבוי שבועי"}
+        </Button>
+        <Button variant="outline" onClick={runNow} disabled={running}>
+          {running && <Loader2 className="h-4 w-4 ml-1 animate-spin" />} גבה עכשיו
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
