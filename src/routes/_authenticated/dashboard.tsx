@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,6 +56,9 @@ function Dashboard() {
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground">לוח בקרה</h1>
         <p className="text-sm text-muted-foreground mt-1">סקירה כללית של הפעילות שלך</p>
+        <Link to="/reports" className="inline-flex mt-3 items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+          הפקת דוח נוכחות (PDF / Excel / Drive)
+        </Link>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
