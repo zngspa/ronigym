@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,7 +20,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/workouts")({
   component: WorkoutsPage,
-  head: () => ({ meta: [{ title: "תוכניות אימון — מאמן" }] }),
+  head: () => pageHead("תוכניות אימון — ZNG Israel", "ניהול תוכניות אימון ורצפי תרגילים לשיעורי כושר."),
 });
 
 const emptyForm = { name: "", description: "", default_rest_seconds: "15" };

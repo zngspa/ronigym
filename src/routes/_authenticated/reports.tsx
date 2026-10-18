@@ -25,6 +25,8 @@ export const Route = createFileRoute("/_authenticated/reports")({
       { name: "description", content: "הפקת דוח נוכחות חודשי או שנתי לכל חניך וקבוצה, ייצוא ל-PDF, Excel או Google Drive" },
       { property: "og:title", content: "דוחות נוכחות — מאמן" },
       { property: "og:description", content: "הפקת דוח נוכחות חודשי או שנתי לכל חניך וקבוצה" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });

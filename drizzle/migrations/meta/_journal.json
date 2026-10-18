@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792360411868,
+      "tag": "0000_student_medical_approval_history",
+      "breakpoints": true
+    }
+  ]
+}

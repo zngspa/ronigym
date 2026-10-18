@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +8,7 @@ import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/auth/google/callback")({
   component: GoogleCallbackPage,
-  head: () => ({ meta: [{ title: "מתחבר ל-Google — מאמן" }] }),
+  head: () => pageHead("חיבור Google — ZNG Israel", "השלמת חיבור חשבון Google לגיבוי ולדוחות."),
 });
 
 function GoogleCallbackPage() {

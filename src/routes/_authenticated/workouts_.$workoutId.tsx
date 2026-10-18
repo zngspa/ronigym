@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -47,7 +48,7 @@ import { WorkoutPlayer, type PlayerItem } from "@/components/workout-player";
 
 export const Route = createFileRoute("/_authenticated/workouts_/$workoutId")({
   component: WorkoutBuilderPage,
-  head: () => ({ meta: [{ title: "בניית תוכנית אימון — מאמן" }] }),
+  head: () => pageHead("בניית תוכנית אימון — ZNG Israel", "עריכת רצף תרגילים, משכי ביצוע והפסקות והפעלת האימון."),
 });
 
 type Row = {

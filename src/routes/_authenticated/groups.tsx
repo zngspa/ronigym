@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -13,7 +14,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/groups")({
   component: GroupsPage,
-  head: () => ({ meta: [{ title: "קבוצות — מאמן" }] }),
+  head: () => pageHead("קבוצות — ZNG Israel", "ניהול קבוצות אימון ושיוך חניכים לקבוצות."),
 });
 
 const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#14B8A6"];

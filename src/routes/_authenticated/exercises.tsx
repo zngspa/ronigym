@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -38,7 +39,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/exercises")({
   component: ExercisesPage,
-  head: () => ({ meta: [{ title: "תרגילים — מאמן" }] }),
+  head: () => pageHead("ספריית תרגילים — ZNG Israel", "ניהול תרגילים, קטגוריות וזמני ביצוע לתוכניות הכושר."),
 });
 
 const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#14B8A6"];

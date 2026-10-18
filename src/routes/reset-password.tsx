@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +12,7 @@ import { KeyRound } from "lucide-react";
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
   component: ResetPasswordPage,
-  head: () => ({ meta: [{ title: "איפוס סיסמה — מאמן" }] }),
+  head: () => pageHead("איפוס סיסמה — ZNG Israel", "עדכון סיסמת החשבון וניהול גישה לאפליקציית ZNG Israel."),
 });
 
 function ResetPasswordPage() {

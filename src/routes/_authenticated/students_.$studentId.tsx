@@ -12,10 +12,18 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Trash2, Save, Wallet, CalendarCheck, UsersRound, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { MedicalApprovalHistory } from "@/components/medical-approval-history";
 
 export const Route = createFileRoute("/_authenticated/students_/$studentId")({
   component: StudentDetail,
-  head: () => ({ meta: [{ title: "כרטיס חניך — מאמן" }] }),
+  head: () => ({ meta: [
+    { title: "כרטיס חניך ואישורים רפואיים — ZNG Israel" },
+    { name: "description", content: "כרטיס החניך, פעילות, תשלומים והיסטוריית אישורים רפואיים ב־ZNG Israel." },
+    { property: "og:title", content: "כרטיס חניך ואישורים רפואיים — ZNG Israel" },
+    { property: "og:description", content: "פרטי החניך והיסטוריית אישורים רפואיים עם תוקף וסטטוס אישור." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 function StudentDetail() {
@@ -83,6 +91,7 @@ function StudentDetail() {
     toast.success("הכרטיס נשמר");
     qc.invalidateQueries({ queryKey: ["student", studentId] });
     qc.invalidateQueries({ queryKey: ["students"] });
+    qc.invalidateQueries({ queryKey: ["medical-approval-history", studentId] });
   };
 
   const remove = async () => {
@@ -189,6 +198,7 @@ function StudentDetail() {
           <div className="flex justify-end">
             <Button onClick={save}><Save className="h-4 w-4 ml-1" /> שמור שינויים</Button>
           </div>
+          <MedicalApprovalHistory studentId={studentId} />
         </TabsContent>
 
         <TabsContent value="groups" className="pt-4">

@@ -282,6 +282,47 @@ export type Database = {
           },
         ]
       }
+      medical_approval_history: {
+        Row: {
+          approved: boolean
+          coach_id: string
+          expires_on: string | null
+          id: string
+          recorded_at: string
+          source: string
+          student_id: string
+          uploaded_at: string | null
+        }
+        Insert: {
+          approved?: boolean
+          coach_id: string
+          expires_on?: string | null
+          id?: string
+          recorded_at?: string
+          source?: string
+          student_id: string
+          uploaded_at?: string | null
+        }
+        Update: {
+          approved?: boolean
+          coach_id?: string
+          expires_on?: string | null
+          id?: string
+          recorded_at?: string
+          source?: string
+          student_id?: string
+          uploaded_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_approval_history_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number

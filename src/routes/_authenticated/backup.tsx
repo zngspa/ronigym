@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { getLastWeeklyBackup, isWeeklyBackupEnabled, runWeeklyBackup, setWeeklyBackupEnabled } from "@/hooks/use-weekly-backup";
@@ -20,7 +21,7 @@ import { GOOGLE_SCOPES, refreshGoogleToken } from "@/lib/google-auth";
 
 export const Route = createFileRoute("/_authenticated/backup")({
   component: BackupPage,
-  head: () => ({ meta: [{ title: "גיבוי וייבוא — מאמן" }] }),
+  head: () => pageHead("גיבוי וייבוא — ZNG Israel", "גיבוי נתוני החניכים, הקבוצות והפעילות וייבוא נתונים."),
 });
 
 const STATUS_HE: Record<string, string> = {
