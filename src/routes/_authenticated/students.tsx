@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Plus, Search, Phone, ChevronLeft, Save, UsersRound } from "lucide-react";
 import { toast } from "sonner";
+import { MedicalExpiryBadge } from "@/components/medical-expiry-badge";
 
 export const Route = createFileRoute("/_authenticated/students")({
   component: StudentsPage,
@@ -183,6 +184,7 @@ function StudentsPage() {
     setEditForm(null);
     qc.invalidateQueries({ queryKey: ["students"] });
     qc.invalidateQueries({ queryKey: ["student", id] });
+    qc.invalidateQueries({ queryKey: ["medical-approval-history", id] });
   };
 
   return (
@@ -222,6 +224,7 @@ function StudentsPage() {
                         <Phone className="h-3 w-3" /> {s.phone}
                       </div>
                     )}
+                    <MedicalExpiryBadge approved={s.health_approval === true} expiresOn={s.health_approval_expiry} />
                     <div className="flex items-center gap-1 flex-wrap mt-1">
                       {groupsOfStudent(s.id).map((g: any) => (
                         <span
@@ -316,7 +319,7 @@ function StudentsPage() {
                 <div><Label>איש קשר לחירום</Label><Input value={editForm.emergency_contact_name} onChange={(e) => setEditForm({ ...editForm, emergency_contact_name: e.target.value })} /></div>
                 <div><Label>טלפון חירום</Label><Input value={editForm.emergency_contact_phone} onChange={(e) => setEditForm({ ...editForm, emergency_contact_phone: e.target.value })} /></div>
                 <div><Label>תשלום חודשי (₪)</Label><Input type="number" value={editForm.monthly_fee} onChange={(e) => setEditForm({ ...editForm, monthly_fee: e.target.value })} /></div>
-                <div><Label>תוקף אישור בריאות</Label><Input type="date" value={editForm.health_approval_expiry} onChange={(e) => setEditForm({ ...editForm, health_approval_expiry: e.target.value })} /></div>
+                <div><Label>תוקף אישור בריאות</Label><Input type="date" value={editForm.health_approval_expiry} onChange={(e) => setEditForm({ ...editForm, health_approval_expiry: e.target.value })} /><MedicalExpiryBadge approved={editForm.health_approval === true} expiresOn={editForm.health_approval_expiry || null} /></div>
               </div>
 
               <div className="space-y-3">
