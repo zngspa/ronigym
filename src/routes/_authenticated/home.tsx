@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarCheck, Users, ListChecks, Wallet } from "lucide-react";
+import { MedicalExpiryReminders } from "@/components/medical-expiry-reminders";
 
 export const Route = createFileRoute("/_authenticated/home")({
   component: HomePage,
@@ -42,6 +43,7 @@ function HomePage() {
           </Link>
         ))}
       </div>
+      <MedicalExpiryReminders />
     </div>
   );
 }

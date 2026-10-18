@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Trash2, Save, Wallet, CalendarCheck, UsersRound, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { MedicalApprovalHistory } from "@/components/medical-approval-history";
+import { MedicalExpiryBadge } from "@/components/medical-expiry-badge";
 
 export const Route = createFileRoute("/_authenticated/students_/$studentId")({
   component: StudentDetail,
@@ -159,6 +160,7 @@ function StudentDetail() {
         <Button variant="ghost" onClick={remove}><Trash2 className="h-4 w-4 text-destructive" /></Button>
       </div>
 
+      {student && <MedicalExpiryBadge approved={student.health_approval === true} expiresOn={student.health_approval_expiry} />}
       <Tabs defaultValue="details">
         <TabsList className="grid grid-cols-4 w-full">
           <TabsTrigger value="details">פרטים</TabsTrigger>

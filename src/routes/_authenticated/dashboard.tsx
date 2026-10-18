@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, UsersRound, CalendarCheck, Wallet, TrendingUp } from "lucide-react";
+import { MedicalExpiryReminders } from "@/components/medical-expiry-reminders";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
@@ -76,6 +77,7 @@ function Dashboard() {
         ))}
       </div>
 
+      <MedicalExpiryReminders />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
