@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/auth/google/callback")({
   component: GoogleCallbackPage,
-  head: () => ({ meta: [{ title: "מתחבר ל-Google — מאמן" }] }),
+  head: () => pageHead("חיבור Google — ZNG Israel", "השלמת חיבור חשבון Google לגיבוי ולדוחות."),
 });
 
 function GoogleCallbackPage() {

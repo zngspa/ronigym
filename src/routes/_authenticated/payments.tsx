@@ -14,7 +14,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/payments")({
   component: PaymentsPage,
-  head: () => ({ meta: [{ title: "תשלומים — מאמן" }] }),
+  head: () => pageHead("תשלומים — ZNG Israel", "מעקב תשלומי החניכים ותקופות התשלום לכל קבוצה."),
 });
 
 const monthLabel = (d: Date) => d.toLocaleDateString("he-IL", { month: "long", year: "numeric" });

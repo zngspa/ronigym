@@ -6,7 +6,7 @@ import { Users, UsersRound, CalendarCheck, Wallet, TrendingUp } from "lucide-rea
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
-  head: () => ({ meta: [{ title: "לוח בקרה — מאמן" }] }),
+  head: () => pageHead("לוח בקרה — ZNG Israel", "סיכום פעילות קבוצות הכושר, החניכים והנוכחות."),
 });
 
 function Dashboard() {

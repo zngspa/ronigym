@@ -14,7 +14,7 @@ import { Dumbbell } from "lucide-react";
 export const Route = createFileRoute("/auth")({
   ssr: false,
   component: AuthPage,
-  head: () => ({ meta: [{ title: "התחברות — מאמן" }] }),
+  head: () => pageHead("התחברות — ZNG Israel", "כניסה לחשבון המאמן לניהול קבוצות הכושר והחניכים."),
 });
 
 function AuthPage() {

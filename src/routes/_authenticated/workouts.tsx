@@ -19,7 +19,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/workouts")({
   component: WorkoutsPage,
-  head: () => ({ meta: [{ title: "תוכניות אימון — מאמן" }] }),
+  head: () => pageHead("תוכניות אימון — ZNG Israel", "ניהול תוכניות אימון ורצפי תרגילים לשיעורי כושר."),
 });
 
 const emptyForm = { name: "", description: "", default_rest_seconds: "15" };

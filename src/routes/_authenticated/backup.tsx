@@ -20,7 +20,7 @@ import { GOOGLE_SCOPES, refreshGoogleToken } from "@/lib/google-auth";
 
 export const Route = createFileRoute("/_authenticated/backup")({
   component: BackupPage,
-  head: () => ({ meta: [{ title: "גיבוי וייבוא — מאמן" }] }),
+  head: () => pageHead("גיבוי וייבוא — ZNG Israel", "גיבוי נתוני החניכים, הקבוצות והפעילות וייבוא נתונים."),
 });
 
 const STATUS_HE: Record<string, string> = {

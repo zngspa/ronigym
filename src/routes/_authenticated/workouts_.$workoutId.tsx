@@ -47,7 +47,7 @@ import { WorkoutPlayer, type PlayerItem } from "@/components/workout-player";
 
 export const Route = createFileRoute("/_authenticated/workouts_/$workoutId")({
   component: WorkoutBuilderPage,
-  head: () => ({ meta: [{ title: "בניית תוכנית אימון — מאמן" }] }),
+  head: () => pageHead("בניית תוכנית אימון — ZNG Israel", "עריכת רצף תרגילים, משכי ביצוע והפסקות והפעלת האימון."),
 });
 
 type Row = {

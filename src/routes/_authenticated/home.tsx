@@ -9,6 +9,8 @@ export const Route = createFileRoute("/_authenticated/home")({
       { name: "description", content: "גישה מהירה לשיעורים ונוכחות, חניכים, תוכניות אימון ותשלומים" },
       { property: "og:title", content: "דף ראשי — מאמן" },
       { property: "og:description", content: "גישה מהירה לשיעורים ונוכחות, חניכים, תוכניות אימון ותשלומים" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });
