@@ -1,0 +1,2 @@
+- [ ] Add approaching/expired medical approval markers and in-app administrator reminders.
+- [ ] Verify date boundaries and the authenticated reminder-to-student-card flow.

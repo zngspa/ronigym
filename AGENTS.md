@@ -11,3 +11,4 @@
 
 - Medical approval history is append-only and recorded by a database trigger on student approval/expiry changes so every editing screen shares the same audit trail; manual records never imply a document upload.
 - Medical history presentation lives in a shared student-card component, with status derived from approval and expiry in the Israel time zone to keep past records unchanged.
+- Current medical-expiry badges and administrator reminders share a pure date classifier and derive warnings from saved student data in Israel time; do not mutate historical records or persist time-based warning transitions.
