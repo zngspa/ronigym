@@ -35,7 +35,7 @@ function LessonsPage() {
 
   const { data: groups = [] } = useQuery({
     queryKey: ["groups"],
-    queryFn: async () => (await supabase.from("groups").select("id, name, color").order("name")).data ?? [],
+    queryFn: async () => (await supabase.from("groups").select("id, name, color, default_start_time, default_end_time").order("name")).data ?? [],
   });
 
   const { data: lessons = [] } = useQuery({
@@ -130,7 +130,15 @@ function LessonsPage() {
           <div className="space-y-3">
             <div>
               <Label>קבוצה</Label>
-              <Select value={form.group_id} onValueChange={(v) => setForm({ ...form, group_id: v })}>
+              <Select value={form.group_id} onValueChange={(v) => {
+                const g = groups.find((gr: any) => gr.id === v);
+                setForm({
+                  ...form,
+                  group_id: v,
+                  start_time: g?.default_start_time?.slice(0, 5) || form.start_time,
+                  end_time: g?.default_end_time?.slice(0, 5) || form.end_time,
+                });
+              }}>
                 <SelectTrigger><SelectValue placeholder="בחר קבוצה" /></SelectTrigger>
                 <SelectContent>
                   {groups.map((g: any) => <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>)}
