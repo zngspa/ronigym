@@ -207,6 +207,8 @@ export type Database = {
           coach_id: string
           color: string | null
           created_at: string
+          default_end_time: string | null
+          default_start_time: string | null
           description: string | null
           id: string
           name: string
@@ -217,6 +219,8 @@ export type Database = {
           coach_id: string
           color?: string | null
           created_at?: string
+          default_end_time?: string | null
+          default_start_time?: string | null
           description?: string | null
           id?: string
           name: string
@@ -227,6 +231,8 @@ export type Database = {
           coach_id?: string
           color?: string | null
           created_at?: string
+          default_end_time?: string | null
+          default_start_time?: string | null
           description?: string | null
           id?: string
           name?: string
