@@ -23,7 +23,7 @@ function GroupsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
-  const [form, setForm] = useState({ name: "", description: "", color: COLORS[0], schedule_notes: "" });
+  const [form, setForm] = useState({ name: "", description: "", color: COLORS[0], schedule_notes: "", default_start_time: "", default_end_time: "" });
   const [membersGroup, setMembersGroup] = useState<any>(null);
   const [memberSearch, setMemberSearch] = useState("");
 
@@ -83,12 +83,12 @@ function GroupsPage() {
 
   const openNew = () => {
     setEditing(null);
-    setForm({ name: "", description: "", color: COLORS[0], schedule_notes: "" });
+    setForm({ name: "", description: "", color: COLORS[0], schedule_notes: "", default_start_time: "", default_end_time: "" });
     setOpen(true);
   };
   const openEdit = (g: any) => {
     setEditing(g);
-    setForm({ name: g.name, description: g.description ?? "", color: g.color ?? COLORS[0], schedule_notes: g.schedule_notes ?? "" });
+    setForm({ name: g.name, description: g.description ?? "", color: g.color ?? COLORS[0], schedule_notes: g.schedule_notes ?? "", default_start_time: g.default_start_time?.slice(0, 5) ?? "", default_end_time: g.default_end_time?.slice(0, 5) ?? "" });
     setOpen(true);
   };
 
@@ -97,12 +97,13 @@ function GroupsPage() {
     const { data: userRes } = await supabase.auth.getUser();
     const coach_id = userRes.user?.id;
     if (!coach_id) return;
+    const payload = { ...form, default_start_time: form.default_start_time || null, default_end_time: form.default_end_time || null };
     if (editing) {
-      const { error } = await supabase.from("groups").update(form).eq("id", editing.id);
+      const { error } = await supabase.from("groups").update(payload).eq("id", editing.id);
       if (error) return toast.error(error.message);
       toast.success("הקבוצה עודכנה");
     } else {
-      const { error } = await supabase.from("groups").insert({ ...form, coach_id });
+      const { error } = await supabase.from("groups").insert({ ...payload, coach_id });
       if (error) return toast.error(error.message);
       toast.success("הקבוצה נוצרה");
     }
@@ -147,6 +148,7 @@ function GroupsPage() {
                   </div>
                 </div>
                 {g.schedule_notes && <div className="text-xs bg-muted/60 rounded-md p-2">{g.schedule_notes}</div>}
+                {g.default_start_time && <div className="text-xs text-muted-foreground">שעת חוג קבועה: {g.default_start_time.slice(0, 5)}{g.default_end_time ? `–${g.default_end_time.slice(0, 5)}` : ""}</div>}
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
                   <Users className="h-3.5 w-3.5" /> {g.group_members?.length ?? 0} חניכים
                 </div>
@@ -174,6 +176,16 @@ function GroupsPage() {
             <div>
               <Label>לוח זמנים / הערות</Label>
               <Textarea value={form.schedule_notes} onChange={(e) => setForm({ ...form, schedule_notes: e.target.value })} placeholder="ימי א' ו-ד' 18:00" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label>שעת התחלה קבועה</Label>
+                <Input type="time" value={form.default_start_time} onChange={(e) => setForm({ ...form, default_start_time: e.target.value })} />
+              </div>
+              <div>
+                <Label>שעת סיום קבועה</Label>
+                <Input type="time" value={form.default_end_time} onChange={(e) => setForm({ ...form, default_end_time: e.target.value })} />
+              </div>
             </div>
             <div>
               <Label>צבע</Label>

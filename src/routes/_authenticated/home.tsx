@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CalendarCheck, Users, ListChecks, Wallet } from "lucide-react";
 import { MedicalExpiryReminders } from "@/components/medical-expiry-reminders";
+import { MissingAttendanceReminders } from "@/components/missing-attendance-reminders";
 
 export const Route = createFileRoute("/_authenticated/home")({
   component: HomePage,
@@ -44,6 +45,7 @@ function HomePage() {
         ))}
       </div>
       <MedicalExpiryReminders />
+      <MissingAttendanceReminders />
     </div>
   );
 }
