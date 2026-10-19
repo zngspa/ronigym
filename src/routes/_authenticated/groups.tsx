@@ -23,7 +23,7 @@ function GroupsPage() {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
-  const [form, setForm] = useState({ name: "", description: "", color: COLORS[0], schedule_notes: "" });
+  const [form, setForm] = useState({ name: "", description: "", color: COLORS[0], schedule_notes: "", default_start_time: "", default_end_time: "" });
   const [membersGroup, setMembersGroup] = useState<any>(null);
   const [memberSearch, setMemberSearch] = useState("");
 
@@ -83,12 +83,12 @@ function GroupsPage() {
 
   const openNew = () => {
     setEditing(null);
-    setForm({ name: "", description: "", color: COLORS[0], schedule_notes: "" });
+    setForm({ name: "", description: "", color: COLORS[0], schedule_notes: "", default_start_time: "", default_end_time: "" });
     setOpen(true);
   };
   const openEdit = (g: any) => {
     setEditing(g);
-    setForm({ name: g.name, description: g.description ?? "", color: g.color ?? COLORS[0], schedule_notes: g.schedule_notes ?? "" });
+    setForm({ name: g.name, description: g.description ?? "", color: g.color ?? COLORS[0], schedule_notes: g.schedule_notes ?? "", default_start_time: g.default_start_time?.slice(0, 5) ?? "", default_end_time: g.default_end_time?.slice(0, 5) ?? "" });
     setOpen(true);
   };
 
